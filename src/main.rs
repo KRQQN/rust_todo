@@ -1,16 +1,27 @@
+use color_eyre::eyre::Result;
 use crossterm::{
-    event::{self, Event, KeyCode},
+    event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{
-    Terminal,
+    DefaultTerminal, Frame, Terminal,
     backend::CrosstermBackend,
+    buffer::Buffer,
+    layout::Rect,
+    style::Stylize,
     style::{Color, Modifier, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem},
+    symbols::border,
+    text::{Line, Span, Text},
+    widgets::{Block, Borders, List, ListItem, Paragraph, Widget},
 };
-use std::io::stdout;
+use std::io;
+
+#[derive(Default)]
+struct App {
+    title: String,
+    quit: bool,
+}
 
 #[derive(Clone)]
 struct Task {
@@ -18,73 +29,72 @@ struct Task {
     done: bool,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    enable_raw_mode()?;
-    let mut stdout = stdout();
-    execute!(stdout, EnterAlternateScreen)?;
-    let backend = CrosstermBackend::new(stdout);
-    let mut terminal = Terminal::new(backend)?;
+fn main() -> Result<()> {
+    color_eyre::install()?;
+    let mut terminal = ratatui::init();
+    let app_result = App::default().run(&mut terminal);
+    ratatui::restore();
+    app_result
+}
 
-    let tasks = [
-        Task {
-            text: "Learn more rust".to_string(),
-            done: true,
-        },
-        Task {
-            text: "Learn ratatui".to_string(),
-            done: false,
-        },
-        Task {
-            text: "Create a mini todo app".to_string(),
-            done: false,
-        },
-    ];
+impl Widget for &App {
+    fn render(self, area: Rect, buf: &mut Buffer) {
+        let title = Line::from(" Counter App Tutorial ".bold());
+        let instructions = Line::from(vec![
+            " Decrement ".into(),
+            "<Left>".blue().bold(),
+            " Increment ".into(),
+            "<Right>".blue().bold(),
+            " Quit ".into(),
+            "<Q> ".blue().bold(),
+        ]);
+        let block = Block::bordered()
+            .title(title.centered())
+            .title_bottom(instructions.centered())
+            .border_set(border::THICK);
 
-    loop {
-        terminal.draw(|f| {
-            let area = f.area();
+        let counter_text = Text::from(vec![Line::from(vec![
+            "Value: ".into(),
+            self.title.to_string().yellow(),
+        ])]);
+        Paragraph::new(counter_text)
+            .centered()
+            .block(block)
+            .render(area, buf);
+    }
+}
 
-            let items: Vec<ListItem> = tasks
-                .iter()
-                .map(|task| {
-                    let checkbox = if task.done { "[x]" } else { "[ ]" };
-                    let style = if task.done {
-                        Style::default().fg(Color::Green)
-                    } else {
-                        Style::default()
-                    };
-                    ListItem::new(Line::from(vec![
-                        Span::styled(checkbox, style),
-                        Span::raw(" "),
-                        Span::raw(&task.text),
-                    ]))
-                })
-                .collect();
+impl App {
+    pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
+        while !self.quit {
+            terminal.draw(|frame| self.draw(frame))?;
+            self.handle_events()?;
+        }
+        Ok(())
+    }
 
-            let list = List::new(items)
-                .block(
-                    Block::default()
-                        .title("tasks")
-                        .borders(Borders::ALL)
-                        .border_style(Style::default().fg(Color::Cyan)),
-                )
-                .highlight_style(Style::default().add_modifier(Modifier::BOLD));
+    fn draw(&self, frame: &mut Frame) {
+        frame.render_widget(self, frame.area());
+    }
 
-            f.render_widget(list, area);
-        })?;
-
-        #[allow(clippy::collapsible_if)]
-        if event::poll(std::time::Duration::from_millis(250))? {
-            if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') | KeyCode::Char('Q') => break,
-                    _ => {}
-                }
+    fn handle_events(&mut self) -> io::Result<()> {
+        match event::read()? {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                self.handle_key_event(key_event)
             }
+            _ => {}
+        };
+        Ok(())
+    }
+
+    fn handle_key_event(&mut self, key_event: KeyEvent) {
+        match key_event.code {
+            KeyCode::Char('q') => self.quit(),
+            _ => {}
         }
     }
 
-    disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-    Ok(())
+    fn quit(&mut self) {
+        self.quit = true;
+    }
 }
