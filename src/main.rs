@@ -3,12 +3,12 @@ pub mod event;
 pub mod tui;
 pub mod ui;
 pub mod update;
+pub mod widgets;
 
 use app::App;
 use color_eyre::eyre::Result;
 use event::{Event, EventHandler};
-use ratatui::crossterm::terminal::enable_raw_mode;
-use ratatui::{Terminal, backend::CrosstermBackend};
+use ratatui::{Terminal, prelude::CrosstermBackend};
 use tui::Tui;
 use update::update;
 
