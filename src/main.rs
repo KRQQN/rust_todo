@@ -12,20 +12,8 @@ use ratatui::{Terminal, backend::CrosstermBackend};
 use tui::Tui;
 use update::update;
 
-pub enum CurrentScreen {
-    Main,
-    Editing,
-    Exiting,
-}
-
-pub enum CurrentlyEditing {
-    Key,
-    Value,
-}
-
 fn main() -> Result<()> {
     color_eyre::install()?;
-    enable_raw_mode()?;
 
     let mut app = App::new();
     let terminal = Terminal::new(CrosstermBackend::new(std::io::stderr()))?;
