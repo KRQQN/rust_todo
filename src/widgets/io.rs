@@ -13,6 +13,12 @@ pub struct Io {
     pub messages: Vec<String>,
 }
 
+pub enum UserInputEvent {
+    None,
+    Submit(String),
+    Cancel,
+}
+
 impl Io {
     pub const fn new() -> Self {
         Self {
@@ -32,25 +38,43 @@ impl Io {
         );
     }
 
-    pub fn handle_key(&mut self, key: KeyEvent) {
+    pub fn handle_key(&mut self, key: KeyEvent) -> UserInputEvent {
         self.active = true;
         match key.code {
-            KeyCode::Enter => self.submit_message(),
-            KeyCode::Char(c) => self.enter_char(c),
-            KeyCode::Backspace => self.delete_char(),
-            KeyCode::Left => self.move_cursor_left(),
-            KeyCode::Right => self.move_cursor_right(),
-            KeyCode::Esc => self.active = false,
-            _ => {}
+            KeyCode::Enter => {
+                if !self.input.trim().is_empty() {
+                    let task = self.input.trim().to_string();
+                    self.input.clear();
+                    self.character_index = 0;
+                    UserInputEvent::Submit(task)
+                } else {
+                    UserInputEvent::None
+                }
+            }
+            KeyCode::Esc => {
+                self.input.clear();
+                self.character_index = 0;
+                self.active = false;
+                UserInputEvent::Cancel
+            }
+            KeyCode::Char(c) => {
+                self.enter_char(c);
+                UserInputEvent::None
+            }
+            KeyCode::Backspace => {
+                self.delete_char();
+                UserInputEvent::None
+            }
+            KeyCode::Left => {
+                self.move_cursor_left();
+                UserInputEvent::None
+            }
+            KeyCode::Right => {
+                self.move_cursor_right();
+                UserInputEvent::None
+            }
+            _ => UserInputEvent::None,
         }
-    }
-
-    fn submit_message(&mut self) {
-        if !self.input.trim().is_empty() {
-            self.messages.push(self.input.trim().to_string());
-        }
-        self.input.clear();
-        self.character_index = 0;
     }
 
     fn move_cursor_left(&mut self) {

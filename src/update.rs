@@ -1,6 +1,9 @@
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::app::{App, InputMode};
+use crate::{
+    app::{App, InputMode},
+    widgets::{io::UserInputEvent, tasklist::Task},
+};
 
 pub fn update(app: &mut App, key_event: KeyEvent) {
     match app.input_mode {
@@ -19,6 +22,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             KeyCode::Down if app.highlighted < app.tasklist.len().saturating_sub(1) => {
                 app.highlighted += 1;
             }
+
             KeyCode::Up if app.highlighted != 0 => {
                 app.highlighted -= 1;
             }
@@ -31,13 +35,17 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             _ => {}
         },
 
-        InputMode::Write => {
-            app.io.handle_key(key_event);
-
-            if !app.io.active {
+        InputMode::Write => match app.io.handle_key(key_event) {
+            UserInputEvent::Submit(text) => {
+                app.tasklist.push(Task { text, done: false });
+                app.highlighted = app.tasklist.len().saturating_sub(1);
                 app.input_mode = InputMode::Menu;
             }
-        }
+            UserInputEvent::Cancel => {
+                app.input_mode = InputMode::Menu;
+            }
+            UserInputEvent::None => {}
+        },
     }
     app.liststate.select(Some(app.highlighted));
 }
