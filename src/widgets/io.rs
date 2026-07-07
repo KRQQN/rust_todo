@@ -1,13 +1,19 @@
 use crossterm::event::{KeyCode, KeyEvent};
+use ratatui::{
+    Frame,
+    layout::Rect,
+    style::{Color, Style},
+    widgets::{Block, Paragraph},
+};
 
-pub struct Input {
+pub struct Io {
     pub input: String,
     pub character_index: usize,
     pub active: bool,
     pub messages: Vec<String>,
 }
 
-impl Input {
+impl Io {
     pub const fn new() -> Self {
         Self {
             input: String::new(),
@@ -15,6 +21,15 @@ impl Input {
             messages: Vec::new(),
             active: false,
         }
+    }
+
+    pub fn render(&mut self, frame: &mut Frame, area: Rect) {
+        frame.render_widget(
+            Paragraph::new(self.input.as_str())
+                .style(Style::default().fg(Color::Yellow))
+                .block(Block::bordered().title("Input")),
+            area,
+        );
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) {

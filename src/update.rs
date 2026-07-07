@@ -32,9 +32,9 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
         },
 
         InputMode::Write => {
-            app.input.handle_key(key_event);
+            app.io.handle_key(key_event);
 
-            if !app.input.active {
+            if !app.io.active {
                 app.input_mode = InputMode::Menu;
             }
         }

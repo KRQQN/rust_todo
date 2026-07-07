@@ -60,16 +60,6 @@ pub fn render(app: &mut App, frame: &mut Frame) {
                 layout[2],
             );
         }
-        InputMode::Write => {
-            frame.render_widget(
-                Paragraph::new(app.input.input.as_str())
-                    .style(match app.input_mode {
-                        InputMode::Menu => Style::default(),
-                        InputMode::Write => Style::default().fg(Color::Yellow),
-                    })
-                    .block(Block::bordered().title("Input")),
-                layout[1],
-            );
-        }
+        InputMode::Write => app.io.render(frame, layout[1]),
     }
 }
