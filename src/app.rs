@@ -8,7 +8,7 @@ pub struct App {
     pub input_mode: InputMode,
     pub io: Io,
     pub tasklist: Vec<Task>,
-    pub highlighted: usize,
+    pub selected_task: usize,
     pub liststate: ListState,
 }
 
@@ -25,7 +25,7 @@ impl App {
             input_mode: InputMode::Menu,
             io: Io::new(),
             liststate: ListState::default(),
-            highlighted: 0,
+            selected_task: 0,
             tasklist: vec![
                 Task {
                     text: "Learn more rust".to_string(),

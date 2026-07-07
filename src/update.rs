@@ -19,16 +19,20 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
                 app.input_mode = InputMode::Write;
             }
 
-            KeyCode::Down if app.highlighted < app.tasklist.len().saturating_sub(1) => {
-                app.highlighted += 1;
+            KeyCode::Char('d') => {
+                app.tasklist.remove(app.selected_task);
             }
 
-            KeyCode::Up if app.highlighted != 0 => {
-                app.highlighted -= 1;
+            KeyCode::Down if app.selected_task < app.tasklist.len().saturating_sub(1) => {
+                app.selected_task += 1;
+            }
+
+            KeyCode::Up if app.selected_task != 0 => {
+                app.selected_task -= 1;
             }
 
             KeyCode::Enter => {
-                if let Some(task) = app.tasklist.get_mut(app.highlighted) {
+                if let Some(task) = app.tasklist.get_mut(app.selected_task) {
                     task.done = !task.done;
                 }
             }
@@ -38,7 +42,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
         InputMode::Write => match app.io.handle_key(key_event) {
             UserInputEvent::Submit(text) => {
                 app.tasklist.push(Task { text, done: false });
-                app.highlighted = app.tasklist.len().saturating_sub(1);
+                app.selected_task = app.tasklist.len().saturating_sub(1);
                 app.input_mode = InputMode::Menu;
             }
             UserInputEvent::Cancel => {
@@ -47,5 +51,5 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             UserInputEvent::None => {}
         },
     }
-    app.liststate.select(Some(app.highlighted));
+    app.liststate.select(Some(app.selected_task));
 }
