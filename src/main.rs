@@ -8,6 +8,7 @@ pub mod widgets;
 use app::App;
 use color_eyre::eyre::Result;
 use event::{Event, EventHandler};
+use nav_footer::NavigationMenu;
 use ratatui::{Terminal, prelude::CrosstermBackend};
 use tui::Tui;
 use update::update;

@@ -8,7 +8,7 @@ use ratatui::{
 
 use crate::{
     app::{App, InputMode},
-    widgets::tasklist::Tasklist,
+    widgets::{nav_footer::NavigationMenu, tasklist::Tasklist},
 };
 
 pub fn render(app: &mut App, frame: &mut Frame) {
@@ -37,28 +37,7 @@ pub fn render(app: &mut App, frame: &mut Frame) {
                 layout[0],
             );
             Tasklist::render(frame, layout[1], app);
-            frame.render_widget(
-                Paragraph::new(Line::from(vec![
-                    " [A] ".into(),
-                    " add task ".into(),
-                    " [↑↓] ".into(),
-                    " navigate ".into(),
-                    " [Enter] ".into(),
-                    " select ".into(),
-                    "[Q]".into(),
-                    " quit ".into(),
-                ]))
-                .block(
-                    Block::default()
-                        .title("")
-                        .title_alignment(Alignment::Center)
-                        .borders(Borders::ALL)
-                        .border_type(BorderType::Rounded),
-                )
-                .style(Style::default().fg(Color::Yellow))
-                .alignment(Alignment::Center),
-                layout[2],
-            );
+            NavigationMenu::render(frame, layout[2]);
         }
         InputMode::Write => app.io.render(frame, layout[1]),
     }
