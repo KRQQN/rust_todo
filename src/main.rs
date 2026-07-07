@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let mut app = App::new();
-    let terminal = Terminal::new(CrosstermBackend::new(std::io::stderr()))?;
+    let terminal = Terminal::new(CrosstermBackend::new(std::io::stdout()))?;
     let events = EventHandler::new(250);
     let mut tui = Tui::new(terminal, events);
 

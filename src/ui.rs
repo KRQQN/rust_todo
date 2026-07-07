@@ -6,7 +6,10 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph},
 };
 
-use crate::{app::App, widgets::tasklist::Tasklist};
+use crate::{
+    app::{App, InputMode},
+    widgets::tasklist::Tasklist,
+};
 
 pub fn render(app: &mut App, frame: &mut Frame) {
     let layout = Layout::default()
@@ -18,38 +21,55 @@ pub fn render(app: &mut App, frame: &mut Frame) {
         ])
         .split(frame.area());
 
-    frame.render_widget(
-        Paragraph::new("")
-            .block(
-                Block::default()
-                    .title("Task Manager")
-                    .title_alignment(Alignment::Center)
-                    .borders(Borders::TOP)
-                    .border_type(BorderType::Plain),
-            )
-            .style(Style::default().fg(Color::Yellow))
-            .alignment(Alignment::Center),
-        layout[0],
-    );
-    Tasklist::render(frame, layout[1], app);
-    frame.render_widget(
-        Paragraph::new(Line::from(vec![
-            "[Q]".into(),
-            " quit ".into(),
-            " [↑↓] ".into(),
-            " navigate ".into(),
-            " [Enter] ".into(),
-            " select ".into(),
-        ]))
-        .block(
-            Block::default()
-                .title("")
-                .title_alignment(Alignment::Center)
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded),
-        )
-        .style(Style::default().fg(Color::Yellow))
-        .alignment(Alignment::Center),
-        layout[2],
-    );
+    match app.input_mode {
+        InputMode::Menu => {
+            frame.render_widget(
+                Paragraph::new("")
+                    .block(
+                        Block::default()
+                            .title("Task Manager")
+                            .title_alignment(Alignment::Center)
+                            .borders(Borders::TOP)
+                            .border_type(BorderType::Plain),
+                    )
+                    .style(Style::default().fg(Color::Yellow))
+                    .alignment(Alignment::Center),
+                layout[0],
+            );
+            Tasklist::render(frame, layout[1], app);
+            frame.render_widget(
+                Paragraph::new(Line::from(vec![
+                    " [A] ".into(),
+                    " add task ".into(),
+                    " [↑↓] ".into(),
+                    " navigate ".into(),
+                    " [Enter] ".into(),
+                    " select ".into(),
+                    "[Q]".into(),
+                    " quit ".into(),
+                ]))
+                .block(
+                    Block::default()
+                        .title("")
+                        .title_alignment(Alignment::Center)
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded),
+                )
+                .style(Style::default().fg(Color::Yellow))
+                .alignment(Alignment::Center),
+                layout[2],
+            );
+        }
+        InputMode::Write => {
+            frame.render_widget(
+                Paragraph::new(app.input.input.as_str())
+                    .style(match app.input_mode {
+                        InputMode::Menu => Style::default(),
+                        InputMode::Write => Style::default().fg(Color::Yellow),
+                    })
+                    .block(Block::bordered().title("Input")),
+                layout[1],
+            );
+        }
+    }
 }

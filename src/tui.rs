@@ -7,12 +7,12 @@ use ratatui::crossterm::{
     terminal::{self, EnterAlternateScreen, LeaveAlternateScreen},
 };
 
-pub type CrosstermTerminal = ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stderr>>;
+pub type CrosstermTerminal = ratatui::Terminal<ratatui::backend::CrosstermBackend<std::io::Stdout>>;
 
 use crate::{app::App, event::EventHandler, ui};
 
 pub struct Tui {
-    terminal: CrosstermTerminal,
+    pub terminal: CrosstermTerminal,
     pub events: EventHandler,
 }
 
@@ -23,7 +23,7 @@ impl Tui {
 
     pub fn enter(&mut self) -> Result<()> {
         terminal::enable_raw_mode()?;
-        execute!(io::stderr(), EnterAlternateScreen, EnableMouseCapture)?;
+        execute!(io::stdout(), EnterAlternateScreen, EnableMouseCapture)?;
 
         let panic_hook = panic::take_hook();
         panic::set_hook(Box::new(move |panic| {
@@ -43,7 +43,7 @@ impl Tui {
 
     fn reset() -> Result<()> {
         terminal::disable_raw_mode()?;
-        execute!(io::stderr(), LeaveAlternateScreen, DisableMouseCapture)?;
+        execute!(io::stdout(), LeaveAlternateScreen, DisableMouseCapture)?;
         Ok(())
     }
 
