@@ -2,7 +2,7 @@ use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::{
     app::{App, InputMode},
-    widgets::{io::UserInputEvent, tasklist::Task},
+    widgets::{io::UserInputEvent, task::Task},
 };
 
 pub fn update(app: &mut App, key_event: KeyEvent) {

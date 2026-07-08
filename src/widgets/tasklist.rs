@@ -5,29 +5,12 @@ use ratatui::widgets::{Block, BorderType, Borders, List, ListItem};
 
 pub struct Tasklist;
 
-pub struct Task {
-    pub text: String,
-    pub done: bool,
-}
-
 impl Tasklist {
     pub fn render(frame: &mut Frame, area: Rect, app: &mut App) {
         let tasks: Vec<ListItem> = app
             .tasklist
             .iter()
-            .map(|task| -> ListItem<'_> {
-                let checkbox = if task.done { "[x]" } else { "[ ]" };
-                let style = if task.done {
-                    Style::default().fg(Color::Green)
-                } else {
-                    Style::default()
-                };
-                ListItem::new(Line::from(vec![
-                    Span::styled(checkbox, style),
-                    Span::raw(" "),
-                    Span::raw(&task.text),
-                ]))
-            })
+            .map(|task| -> ListItem<'_> { task.as_list_item() })
             .collect();
 
         let list = List::new(tasks)

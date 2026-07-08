@@ -1,6 +1,6 @@
 use ratatui::widgets::ListState;
 
-use crate::widgets::{io::Io, tasklist::Task};
+use crate::widgets::{io::Io, task::Task};
 
 pub struct App {
     pub title: String,

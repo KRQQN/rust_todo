@@ -1,9 +1,9 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
-    layout::Rect,
+    layout::{Constraint, Rect},
     style::{Color, Style},
-    widgets::{Block, Paragraph},
+    widgets::{Block, Padding, Paragraph},
 };
 
 pub struct Io {
@@ -30,14 +30,17 @@ impl Io {
     }
 
     pub fn render(&mut self, frame: &mut Frame, area: Rect) {
+        let block = Block::bordered()
+            .title("Task title:")
+            .padding(Padding::new(2, 2, 1, 1));
+
         frame.render_widget(
             Paragraph::new(self.input.as_str())
                 .style(Style::default().fg(Color::Yellow))
-                .block(Block::bordered().title("Input")),
-            area,
+                .block(block),
+            area.centered(Constraint::Length(40), Constraint::Length(5)),
         );
     }
-
     pub fn handle_key(&mut self, key: KeyEvent) -> UserInputEvent {
         self.active = true;
         match key.code {
