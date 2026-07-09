@@ -1,4 +1,4 @@
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Flex, Layout, Margin, Rect},
@@ -7,7 +7,7 @@ use ratatui::{
     widgets::{Block, Borders, Clear, Padding, Paragraph},
 };
 
-use crate::widgets::io::Io;
+use crate::widgets::{io::Io, task::Task};
 
 pub struct FormField {
     pub label: String,
@@ -21,6 +21,12 @@ pub struct AddTaskForm {
     pub fields: Vec<FormField>,
     pub active: usize,
     pub show: bool,
+}
+
+pub enum TaskFormResponse {
+    Submitted(Task),
+    Canceled,
+    Closed,
 }
 
 impl AddTaskForm {
@@ -113,25 +119,51 @@ impl AddTaskForm {
         }
     }
 
-    pub fn handle_key(&mut self, key: KeyEvent) -> Option<String> {
+    fn clear_input(&mut self) {
+        for field in &mut self.fields {
+            field.value.clear();
+            field.io.input.clear();
+            field.io.character_index = 0;
+        }
+    }
+
+    pub fn handle_key(&mut self, key_event: KeyEvent) -> Option<TaskFormResponse> {
         if !self.show {
             return None;
         }
 
         let field = &mut self.fields[self.active];
+        let key_code = key_event.code;
 
-        match key.code {
+        if key_event.modifiers.contains(KeyModifiers::CONTROL) {
+            match key_code {
+                KeyCode::Char('s') => {
+                    if !field.io.input.trim().is_empty() {
+                        field.value = field.io.input.clone();
+                    }
+
+                    let task = Task {
+                        text: self.fields[0].value.clone(),
+                        description: self.fields[1].value.clone(),
+                        done: false,
+                    };
+                    self.clear_input();
+                    return Some(TaskFormResponse::Submitted(task));
+                }
+                KeyCode::Char('c') => return Some(TaskFormResponse::Closed),
+
+                _ => {}
+            }
+        }
+
+        match key_code {
             KeyCode::Enter => {
                 if !field.io.input.trim().is_empty() {
                     field.value = field.io.input.clone();
-                    field.io.input.clear();
-                    field.io.character_index = 0;
                 }
 
                 self.active = (self.active + 1) % self.fields.len();
-                if self.active == 0 {
-                    return Some("submitted".into());
-                }
+
                 None
             }
 
@@ -151,17 +183,18 @@ impl AddTaskForm {
 
             KeyCode::Esc => {
                 self.show = false;
-                None
+                self.clear_input();
+                Some(TaskFormResponse::Canceled)
             }
 
             _ => {
                 if field.io.input.len() < field.max_length
                     || matches!(
-                        key.code,
+                        key_code,
                         KeyCode::Backspace | KeyCode::Left | KeyCode::Right
                     )
                 {
-                    field.io.handle_key(key);
+                    field.io.handle_key(key_event);
                 }
                 None
             }

@@ -1,6 +1,9 @@
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::app::{App, InputMode};
+use crate::{
+    app::{App, InputMode},
+    widgets::add_task_form::TaskFormResponse,
+};
 
 pub fn update(app: &mut App, key_event: KeyEvent) {
     match app.input_mode {
@@ -39,13 +42,21 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
 
         InputMode::Write => {
             if app.add_task_form.show {
-                if let Some(submitted) = app.add_task_form.handle_key(key_event) {
-                    if submitted == "submitted" {
+                match app.add_task_form.handle_key(key_event) {
+                    Some(TaskFormResponse::Submitted(task)) => {
+                        app.tasklist.push(task);
+                        app.add_task_form.show = false;
                         app.input_mode = InputMode::Menu;
                     }
-                }
-                if !app.add_task_form.show {
-                    app.input_mode = InputMode::Menu;
+                    Some(TaskFormResponse::Canceled) => {
+                        app.add_task_form.show = false;
+                        app.input_mode = InputMode::Menu;
+                    }
+                    Some(TaskFormResponse::Closed) => {
+                        app.add_task_form.show = false;
+                        app.input_mode = InputMode::Menu;
+                    }
+                    _ => {}
                 }
             }
         }

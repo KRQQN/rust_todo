@@ -31,14 +31,17 @@ impl App {
             tasklist: vec![
                 Task {
                     text: "Learn more rust".to_string(),
+                    description: "...describing".to_string(),
                     done: true,
                 },
                 Task {
                     text: "Learn ratatui".to_string(),
+                    description: "...describing".to_string(),
                     done: false,
                 },
                 Task {
                     text: "Create a mini todo app".to_string(),
+                    description: "...describing".to_string(),
                     done: false,
                 },
             ],

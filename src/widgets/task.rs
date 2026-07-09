@@ -6,6 +6,7 @@ use ratatui::{
 
 pub struct Task {
     pub text: String,
+    pub description: String,
     pub done: bool,
 }
 
@@ -13,6 +14,7 @@ impl Task {
     pub fn new() -> Task {
         Task {
             text: String::from(""),
+            description: String::from(""),
             done: false,
         }
     }
