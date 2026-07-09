@@ -25,6 +25,8 @@ pub fn render(app: &mut App, frame: &mut Frame) {
             NavigationMenu::render(frame, layout[2]);
         }
 
-        InputMode::Write => app.io.render(frame, layout[1]),
+        InputMode::Write => {
+            app.add_task_form.render(frame, layout[1]);
+        }
     }
 }

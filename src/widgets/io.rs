@@ -1,7 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent};
 use ratatui::{
     Frame,
-    layout::{Constraint, Rect},
+    layout::Rect,
     style::{Color, Style},
     widgets::{Block, Padding, Paragraph},
 };
@@ -31,52 +31,38 @@ impl Io {
 
     pub fn render(&mut self, frame: &mut Frame, area: Rect) {
         let block = Block::bordered()
-            .title("Task title:")
-            .padding(Padding::new(2, 2, 1, 1));
+            .title("Input:")
+            .padding(Padding::new(2, 2, 0, 0));
 
         frame.render_widget(
             Paragraph::new(self.input.as_str())
                 .style(Style::default().fg(Color::Yellow))
                 .block(block),
-            area.centered(Constraint::Length(40), Constraint::Length(5)),
+            area,
         );
     }
-    pub fn handle_key(&mut self, key: KeyEvent) -> UserInputEvent {
-        self.active = true;
+    pub fn handle_key(&mut self, key: KeyEvent) {
         match key.code {
             KeyCode::Enter => {
                 if !self.input.trim().is_empty() {
-                    let task = self.input.trim().to_string();
                     self.input.clear();
                     self.character_index = 0;
-                    UserInputEvent::Submit(task)
                 } else {
-                    UserInputEvent::None
                 }
-            }
-            KeyCode::Esc => {
-                self.input.clear();
-                self.character_index = 0;
-                self.active = false;
-                UserInputEvent::Cancel
             }
             KeyCode::Char(c) => {
                 self.enter_char(c);
-                UserInputEvent::None
             }
             KeyCode::Backspace => {
                 self.delete_char();
-                UserInputEvent::None
             }
             KeyCode::Left => {
                 self.move_cursor_left();
-                UserInputEvent::None
             }
             KeyCode::Right => {
                 self.move_cursor_right();
-                UserInputEvent::None
             }
-            _ => UserInputEvent::None,
+            _ => (),
         }
     }
 

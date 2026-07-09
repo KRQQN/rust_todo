@@ -1,9 +1,6 @@
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::{
-    app::{App, InputMode},
-    widgets::{io::UserInputEvent, task::Task},
-};
+use crate::app::{App, InputMode};
 
 pub fn update(app: &mut App, key_event: KeyEvent) {
     match app.input_mode {
@@ -16,6 +13,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             }
 
             KeyCode::Char('a') => {
+                app.add_task_form.show = true;
                 app.input_mode = InputMode::Write;
             }
 
@@ -39,17 +37,18 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             _ => {}
         },
 
-        InputMode::Write => match app.io.handle_key(key_event) {
-            UserInputEvent::Submit(text) => {
-                app.tasklist.push(Task { text, done: false });
-                app.selected_task = app.tasklist.len().saturating_sub(1);
-                app.input_mode = InputMode::Menu;
+        InputMode::Write => {
+            if app.add_task_form.show {
+                if let Some(submitted) = app.add_task_form.handle_key(key_event) {
+                    if submitted == "submitted" {
+                        app.input_mode = InputMode::Menu;
+                    }
+                }
+                if !app.add_task_form.show {
+                    app.input_mode = InputMode::Menu;
+                }
             }
-            UserInputEvent::Cancel => {
-                app.input_mode = InputMode::Menu;
-            }
-            UserInputEvent::None => {}
-        },
+        }
     }
     app.liststate.select(Some(app.selected_task));
 }
