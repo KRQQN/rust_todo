@@ -53,9 +53,9 @@ impl NavigationMenu {
             Paragraph::new(content)
                 .block(
                     Block::default()
-                        .borders(Borders::TOP)
-                        .border_type(BorderType::Plain)
-                        .border_style(Style::default().fg(Color::Rgb(128, 128, 0))) // Dark yellow
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Thick)
+                        .border_style(Style::default().fg(Color::Yellow))
                         .style(Style::default().bg(Color::Black)),
                 )
                 .style(Style::default().fg(Color::Yellow))
@@ -91,7 +91,7 @@ impl NavigationMenu {
                     Block::default()
                         .borders(Borders::TOP)
                         .border_type(BorderType::Plain)
-                        .border_style(Style::default().fg(Color::Rgb(128, 128, 0)))
+                        .border_style(Style::default().fg(Color::Yellow))
                         .style(Style::default().bg(Color::Black)),
                 )
                 .style(Style::default().fg(Color::Yellow))

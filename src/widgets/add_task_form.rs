@@ -64,7 +64,7 @@ impl AddTaskForm {
         let outer_block = Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(Color::Yellow))
-            .border_type(BorderType::Rounded)
+            .border_type(BorderType::Thick)
             .title(" Add New Task ")
             .title_alignment(Alignment::Center)
             .style(Style::default().bg(Color::Black));

@@ -1,7 +1,7 @@
 use crate::app::App;
 use ratatui::layout::Rect;
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, BorderType, Borders, List, ListItem};
+use ratatui::widgets::{Block, BorderType, Borders, List, ListItem, Padding};
 
 pub struct Tasklist;
 
@@ -16,10 +16,13 @@ impl Tasklist {
         let list = List::new(tasks)
             .block(
                 Block::default()
-                    .title("tasks")
+                    .title("| tasks |")
+                    .title_alignment(Alignment::Center)
                     .borders(Borders::ALL)
                     .border_type(BorderType::Thick)
-                    .border_style(Style::default().fg(Color::Yellow)),
+                    .border_style(Style::default().fg(Color::Yellow))
+                    .style(Style::default().bg(Color::Black))
+                    .padding(Padding::new(1, 1, 1, 1)),
             )
             .highlight_style(Style::default().add_modifier(Modifier::BOLD))
             .highlight_symbol(">>");

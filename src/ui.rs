@@ -13,8 +13,8 @@ pub fn render(app: &mut App, frame: &mut Frame) {
         .direction(Direction::Vertical)
         .constraints(vec![
             Constraint::Percentage(5),
-            Constraint::Percentage(85),
-            Constraint::Percentage(10),
+            Constraint::Percentage(95),
+            Constraint::Length(3),
         ])
         .split(frame.area());
 
