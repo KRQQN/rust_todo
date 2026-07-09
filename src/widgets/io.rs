@@ -41,15 +41,9 @@ impl Io {
             area,
         );
     }
+
     pub fn handle_key(&mut self, key: KeyEvent) {
         match key.code {
-            KeyCode::Enter => {
-                if !self.input.trim().is_empty() {
-                    self.input.clear();
-                    self.character_index = 0;
-                } else {
-                }
-            }
             KeyCode::Char(c) => {
                 self.enter_char(c);
             }

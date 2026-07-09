@@ -1,13 +1,13 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     Frame,
-    layout::{Constraint, Direction, Flex, Layout, Margin, Rect},
+    layout::{Alignment, Constraint, Direction, Flex, Layout, Margin, Rect},
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders, Clear, Padding, Paragraph},
+    widgets::{Block, BorderType, Borders, Clear, Paragraph},
 };
 
-use crate::widgets::{io::Io, task::Task};
+use crate::widgets::{io::Io, nav_footer::NavigationMenu, task::Task};
 
 pub struct FormField {
     pub label: String,
@@ -59,30 +59,40 @@ impl AddTaskForm {
         }
 
         let popup_area = area.centered(Constraint::Length(60), Constraint::Length(100));
-
         frame.render_widget(Clear, popup_area);
 
         let outer_block = Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(Color::Yellow))
-            .title("Add New Task")
-            .padding(Padding::new(2, 2, 1, 1));
+            .border_type(BorderType::Rounded)
+            .title(" Add New Task ")
+            .title_alignment(Alignment::Center)
+            .style(Style::default().bg(Color::Black));
 
         let inner_area = outer_block.inner(popup_area);
         frame.render_widget(outer_block, popup_area);
+
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Min(0), Constraint::Length(3)])
+            .split(inner_area);
+
+        let content_area = layout[0];
+        let footer_area = layout[1];
 
         let field_areas = Layout::default()
             .direction(Direction::Vertical)
             .flex(Flex::Center)
             .spacing(1)
-            .constraints(vec![Constraint::Length(3); 3])
-            .split(inner_area);
+            .constraints(vec![Constraint::Length(3); self.fields.len()])
+            .split(content_area);
 
         for (i, field) in self.fields.iter().enumerate() {
             let is_active = i == self.active;
 
             let input_block = Block::default()
                 .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
                 .border_style(if is_active {
                     Style::default().fg(Color::Yellow)
                 } else {
@@ -91,7 +101,8 @@ impl AddTaskForm {
                 .title(Line::from(vec![
                     Span::styled(&field.label, Style::default().fg(Color::Gray)),
                     Span::raw(format!(" ({}/{})", field.io.input.len(), field.max_length)),
-                ]));
+                ]))
+                .style(Style::default().bg(Color::Black));
 
             let input_layout = Layout::default()
                 .direction(Direction::Horizontal)
@@ -117,6 +128,8 @@ impl AddTaskForm {
 
             frame.render_widget(paragraph, input_area.inner(Margin::new(1, 1)));
         }
+
+        NavigationMenu::render_task_form_menu(frame, footer_area);
     }
 
     fn clear_input(&mut self) {
@@ -125,6 +138,7 @@ impl AddTaskForm {
             field.io.input.clear();
             field.io.character_index = 0;
         }
+        self.active = 0;
     }
 
     pub fn handle_key(&mut self, key_event: KeyEvent) -> Option<TaskFormResponse> {
@@ -168,6 +182,10 @@ impl AddTaskForm {
             }
 
             KeyCode::Tab | KeyCode::Down => {
+                if !field.io.input.trim().is_empty() {
+                    field.value = field.io.input.clone();
+                }
+
                 self.active = (self.active + 1) % self.fields.len();
                 None
             }
@@ -183,7 +201,6 @@ impl AddTaskForm {
 
             KeyCode::Esc => {
                 self.show = false;
-                self.clear_input();
                 Some(TaskFormResponse::Canceled)
             }
 

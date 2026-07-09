@@ -22,7 +22,7 @@ pub fn render(app: &mut App, frame: &mut Frame) {
         InputMode::Menu => {
             Header::render(frame, layout[0]);
             Tasklist::render(frame, layout[1], app);
-            NavigationMenu::render(frame, layout[2]);
+            NavigationMenu::render_main_menu(frame, layout[2]);
         }
 
         InputMode::Write => {
