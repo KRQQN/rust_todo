@@ -26,7 +26,7 @@ impl Task {
         }
     }
 
-    pub fn default() -> Self {
+    pub fn empty() -> Self {
         Self {
             text: String::new(),
             description: String::new(),
@@ -51,5 +51,11 @@ impl Task {
         ]);
 
         ListItem::new(content)
+    }
+}
+
+impl Default for Task {
+    fn default() -> Self {
+        Self::empty()
     }
 }
