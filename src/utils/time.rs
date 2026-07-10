@@ -1,4 +1,4 @@
-use chrono::{DateTime, Duration, Local, NaiveDate};
+use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, TimeZone};
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct ReminderParser;
@@ -32,7 +32,6 @@ impl ReminderParser {
     fn parse_relative(input: &str, now: DateTime<Local>) -> Option<DateTime<Local>> {
         let mut days = 0i64;
         let mut hours = 0i64;
-
         for word in input.split_whitespace() {
             let w = word.to_lowercase();
             if let Some(d) = w.strip_suffix('d') {
@@ -45,7 +44,6 @@ impl ReminderParser {
                 }
             }
         }
-
         if days > 0 || hours > 0 {
             Some(now + Duration::days(days) + Duration::hours(hours))
         } else {
@@ -53,7 +51,7 @@ impl ReminderParser {
         }
     }
 
-    fn parse_absolute(input: &str, now: DateTime<Local>) -> Option<DateTime<Local>> {
+    fn parse_absolute(input: &str, _now: DateTime<Local>) -> Option<DateTime<Local>> {
         let formats = [
             "%Y-%m-%d %H:%M",
             "%d/%m/%Y %H:%M",
@@ -64,17 +62,28 @@ impl ReminderParser {
         ];
 
         for fmt in formats {
-            if let Ok(date) = NaiveDate::parse_from_str(input, fmt) {
-                return date
-                    .and_hms_opt(9, 0, 0)
-                    .and_then(|naive_dt| naive_dt.and_local_timezone(Local).single());
+            // date + time
+            if let Ok(naive) = NaiveDateTime::parse_from_str(input, fmt) {
+                if let Some(dt) = Local.from_local_datetime(&naive).single() {
+                    return Some(dt);
+                }
             }
 
-            if let Ok(dt) = DateTime::parse_from_str(input, fmt) {
-                return Some(dt.with_timezone(&Local));
+            // if only date, time default to 09:00
+            if let Ok(date) = NaiveDate::parse_from_str(input, fmt) {
+                if let Some(dt) = date
+                    .and_hms_opt(9, 0, 0)
+                    .and_then(|naive| Local.from_local_datetime(&naive).single())
+                {
+                    return Some(dt);
+                }
+            }
+
+            // timezoned strings to local
+            if let Ok(dt_with_offset) = DateTime::parse_from_str(input, fmt) {
+                return Some(dt_with_offset.with_timezone(&Local));
             }
         }
-
         None
     }
 }

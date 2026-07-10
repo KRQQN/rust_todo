@@ -1,10 +1,11 @@
+use chrono::{DateTime, Local};
 use ratatui::{
     style::{Color, Style},
     text::{Line, Span},
     widgets::ListItem,
 };
 
-use chrono::{DateTime, Local};
+use crate::utils::time_formatter::ReminderTimeFormatter;
 
 #[derive(Clone)]
 pub struct Task {
@@ -12,6 +13,7 @@ pub struct Task {
     pub description: String,
     pub done: bool,
     pub reminder: Option<DateTime<Local>>,
+    pub completed_at: Option<DateTime<Local>>,
     pub created_at: DateTime<Local>,
 }
 
@@ -23,6 +25,7 @@ impl Task {
             done: false,
             reminder,
             created_at: Local::now(),
+            completed_at: None,
         }
     }
 
@@ -33,8 +36,10 @@ impl Task {
             done: false,
             reminder: None,
             created_at: Local::now(),
+            completed_at: None,
         }
     }
+
     pub fn as_list_item(&self) -> ListItem<'_> {
         let checkbox = if self.done { "[x]" } else { "[ ]" };
 
@@ -51,32 +56,11 @@ impl Task {
             Span::raw(&self.text),
         ];
 
-        if let Some(reminder) = self.reminder {
-            let now = Local::now();
-            let duration = reminder.signed_duration_since(now);
-
-            let reminder_text = if self.done {
-                "".to_string()
-            } else if duration.num_days() > 0 {
-                format!(" (in {}d)", duration.num_days())
-            } else if duration.num_hours() > 0 {
-                format!(" (in {}h)", duration.num_hours())
-            } else if duration.num_minutes() > 0 {
-                format!(" (in {}m)", duration.num_minutes())
-            } else {
-                " (now!)".to_string()
-            };
-
-            let reminder_style = if !self.done && duration.num_hours() <= 24 {
-                Style::default().fg(Color::Red)
-            } else if !self.done && duration.num_days() <= 7 {
-                Style::default().fg(Color::Yellow)
-            } else {
-                Style::default().fg(Color::LightCyan)
-            };
-
+        if let Some(span) =
+            ReminderTimeFormatter::format_reminder(self.reminder, self.completed_at, self.done)
+        {
             spans.push(Span::raw(" "));
-            spans.push(Span::styled(reminder_text, reminder_style));
+            spans.push(span);
         }
 
         ListItem::new(Line::from(spans))

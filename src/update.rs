@@ -1,3 +1,4 @@
+use chrono::Local;
 use ratatui::crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
 use crate::{
@@ -35,6 +36,7 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
             KeyCode::Enter => {
                 if let Some(task) = app.tasklist.get_mut(app.selected_task) {
                     task.done = !task.done;
+                    task.completed_at = Some(Local::now());
                 }
             }
             _ => {}
