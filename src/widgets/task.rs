@@ -4,21 +4,37 @@ use ratatui::{
     widgets::ListItem,
 };
 
+use chrono::{DateTime, Local};
+
+#[derive(Clone)]
 pub struct Task {
     pub text: String,
     pub description: String,
     pub done: bool,
+    pub reminder: Option<DateTime<Local>>,
+    pub created_at: DateTime<Local>,
 }
 
 impl Task {
-    pub fn new() -> Task {
-        Task {
-            text: String::from(""),
-            description: String::from(""),
+    pub fn new(text: String, description: String, reminder: Option<DateTime<Local>>) -> Self {
+        Self {
+            text,
+            description,
             done: false,
+            reminder,
+            created_at: Local::now(),
         }
     }
 
+    pub fn default() -> Self {
+        Self {
+            text: String::new(),
+            description: String::new(),
+            done: false,
+            reminder: None,
+            created_at: Local::now(),
+        }
+    }
     pub fn as_list_item(&self) -> ListItem<'_> {
         let checkbox = if self.done { "[x]" } else { "[ ]" };
 

@@ -29,21 +29,21 @@ impl App {
             add_task_form: AddTaskForm::new(),
             selected_task: 0,
             tasklist: vec![
-                Task {
-                    text: "Learn more rust".to_string(),
-                    description: "...describing".to_string(),
-                    done: true,
-                },
-                Task {
-                    text: "Learn ratatui".to_string(),
-                    description: "...describing".to_string(),
-                    done: false,
-                },
-                Task {
-                    text: "Create a mini todo app".to_string(),
-                    description: "...describing".to_string(),
-                    done: false,
-                },
+                Task::new(
+                    "Learn more rust".to_string(),
+                    "...describing".to_string(),
+                    None,
+                ),
+                Task::new(
+                    "Learn ratatui".to_string(),
+                    "...describing".to_string(),
+                    None,
+                ),
+                Task::new(
+                    "Create a mini todo app".to_string(),
+                    "...describing".to_string(),
+                    None,
+                ),
             ],
         }
     }

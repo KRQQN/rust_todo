@@ -3,6 +3,7 @@ pub mod event;
 pub mod tui;
 pub mod ui;
 pub mod update;
+pub mod utils;
 pub mod widgets;
 
 use app::App;

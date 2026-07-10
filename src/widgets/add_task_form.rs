@@ -1,3 +1,4 @@
+use chrono::Local;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use ratatui::{
     Frame,
@@ -7,7 +8,10 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Clear, Paragraph},
 };
 
-use crate::widgets::{io::Io, nav_footer::NavigationMenu, task::Task};
+use crate::{
+    utils::time::ReminderParser,
+    widgets::{io::Io, nav_footer::NavigationMenu, task::Task},
+};
 
 pub struct FormField {
     pub label: String,
@@ -46,6 +50,13 @@ impl AddTaskForm {
                     value: String::new(),
                     max_length: 300,
                     box_width: 60,
+                },
+                FormField {
+                    label: "Reminder".into(),
+                    io: Io::new(),
+                    value: String::new(),
+                    max_length: 30,
+                    box_width: 35,
                 },
             ],
             active: 0,
@@ -156,11 +167,14 @@ impl AddTaskForm {
                         field.value = field.io.input.clone();
                     }
 
-                    let task = Task {
-                        text: self.fields[0].value.clone(),
-                        description: self.fields[1].value.clone(),
-                        done: false,
-                    };
+                    let reminder = ReminderParser::parse(&self.fields[2].value);
+
+                    let task = Task::new(
+                        self.fields[0].value.clone(),
+                        self.fields[1].value.clone(),
+                        reminder,
+                    );
+
                     self.clear_input();
                     return Some(TaskFormResponse::Submitted(task));
                 }
