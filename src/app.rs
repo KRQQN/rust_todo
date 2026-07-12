@@ -1,5 +1,6 @@
 use ratatui::widgets::ListState;
 
+use crate::utils::storage::{self, load_tasks};
 use crate::widgets::{add_task_form::AddTaskForm, io::Io, task::Task};
 
 pub struct App {
@@ -28,27 +29,12 @@ impl App {
             liststate: ListState::default(),
             add_task_form: AddTaskForm::new(),
             selected_task: 0,
-            tasklist: vec![
-                Task::new(
-                    "Learn more rust".to_string(),
-                    "...describing".to_string(),
-                    None,
-                ),
-                Task::new(
-                    "Learn ratatui".to_string(),
-                    "...describing".to_string(),
-                    None,
-                ),
-                Task::new(
-                    "Create a mini todo app".to_string(),
-                    "...describing".to_string(),
-                    None,
-                ),
-            ],
+            tasklist: load_tasks().unwrap_or_default(),
         }
     }
 
     pub fn quit(&mut self) {
+        storage::save_tasks(&self.tasklist).expect("Failed to save tasks");
         self.quit = true;
     }
 }
