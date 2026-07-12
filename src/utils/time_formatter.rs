@@ -49,16 +49,21 @@ impl ReminderTimeFormatter {
         } else if diff.num_seconds() < 0 {
             (Self::signed_duration_text(diff.abs(), '-'), Color::Red)
         } else {
-            (" (Phew)".to_string(), Color::Yellow)
+            ("".to_string(), Color::Yellow)
         }
     }
 
     fn signed_duration_text(duration: chrono::Duration, sign: char) -> String {
+        let days = duration.num_days();
         let hours = duration.num_hours();
-        let minutes = duration.num_minutes() % 60;
+        let minutes = duration.num_minutes();
 
         if hours > 0 {
-            format!(" {}{}h {}m", sign, hours, minutes)
+            if hours >= 24 {
+                format!(" {}{}d {}h", sign, days, hours % 24)
+            } else {
+                format!(" {}{}h {}m", sign, hours, minutes % 60)
+            }
         } else {
             format!(" {}{}m", sign, duration.num_minutes())
         }

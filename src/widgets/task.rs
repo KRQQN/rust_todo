@@ -4,10 +4,11 @@ use ratatui::{
     text::{Line, Span},
     widgets::ListItem,
 };
+use serde::{Deserialize, Serialize};
 
 use crate::utils::time_formatter::ReminderTimeFormatter;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Task {
     pub text: String,
     pub description: String,
