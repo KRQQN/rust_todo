@@ -27,10 +27,6 @@ impl Tasklist {
             .highlight_style(Style::default().add_modifier(Modifier::BOLD))
             .highlight_symbol(">>");
 
-        frame.render_stateful_widget(
-            list,
-            area.centered_horizontally(Constraint::Length(50)),
-            &mut app.liststate,
-        );
+        frame.render_stateful_widget(list, area, &mut app.liststate);
     }
 }

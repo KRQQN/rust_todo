@@ -5,6 +5,7 @@ use ratatui::{
 
 use crate::{
     app::{App, InputMode},
+    stats::TaskStats,
     widgets::{header::Header, nav_footer::NavigationMenu, tasklist::Tasklist},
 };
 
@@ -21,10 +22,17 @@ pub fn render(app: &mut App, frame: &mut Frame) {
     match app.input_mode {
         InputMode::Menu => {
             Header::render(frame, layout[0]);
-            Tasklist::render(frame, layout[1], app);
+
+            let main_areas = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints(vec![Constraint::Percentage(35), Constraint::Percentage(65)])
+                .split(layout[1]);
+
+            Tasklist::render(frame, main_areas[0], app);
+            TaskStats::render(frame, main_areas[1]);
+
             NavigationMenu::render_main_menu(frame, layout[2]);
         }
-
         InputMode::Write => {
             app.add_task_form.render(frame, layout[1]);
         }

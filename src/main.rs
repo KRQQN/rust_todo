@@ -1,5 +1,6 @@
 pub mod app;
 pub mod event;
+pub mod stats;
 pub mod tui;
 pub mod ui;
 pub mod update;
