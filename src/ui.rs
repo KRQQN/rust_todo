@@ -5,7 +5,6 @@ use ratatui::{
 
 use crate::{
     app::{App, InputMode},
-    stats::TaskStats,
     widgets::{header::Header, nav_footer::NavigationMenu, tasklist::Tasklist},
 };
 
@@ -25,11 +24,11 @@ pub fn render(app: &mut App, frame: &mut Frame) {
 
             let main_areas = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints(vec![Constraint::Percentage(35), Constraint::Percentage(65)])
+                .constraints(vec![Constraint::Percentage(45), Constraint::Percentage(55)])
                 .split(layout[1]);
 
             Tasklist::render(frame, main_areas[0], app);
-            TaskStats::render(frame, main_areas[1]);
+            app.task_stats.render(frame, main_areas[1]);
 
             NavigationMenu::render_main_menu(frame, layout[2]);
         }

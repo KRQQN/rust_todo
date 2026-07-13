@@ -1,5 +1,6 @@
 use ratatui::widgets::ListState;
 
+use crate::stats::TaskStats;
 use crate::utils::storage::{self, load_tasks};
 use crate::widgets::{add_task_form::AddTaskForm, io::Io, task::Task};
 
@@ -12,6 +13,7 @@ pub struct App {
     pub selected_task: usize,
     pub liststate: ListState,
     pub add_task_form: AddTaskForm,
+    pub task_stats: TaskStats,
 }
 
 pub enum InputMode {
@@ -30,6 +32,7 @@ impl App {
             add_task_form: AddTaskForm::new(),
             selected_task: 0,
             tasklist: load_tasks().unwrap_or_default(),
+            task_stats: TaskStats::default(),
         }
     }
 

@@ -25,6 +25,8 @@ pub fn update(app: &mut App, key_event: KeyEvent) {
                 app.tasklist.remove(app.selected_task);
             }
 
+            KeyCode::Char('s') => app.task_stats.sync_task_stats(&app.tasklist),
+
             KeyCode::Down if app.selected_task < app.tasklist.len().saturating_sub(1) => {
                 app.selected_task += 1;
             }
