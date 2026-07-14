@@ -1,4 +1,4 @@
-use chrono::{DateTime, Datelike, Local};
+use chrono::{DateTime, Datelike, Local, TimeDelta};
 use ratatui::prelude::*;
 use ratatui::widgets::Paragraph;
 use ratatui::{
@@ -9,6 +9,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders},
 };
 
+use crate::utils::time_formatter::TimeFormatter;
 use crate::widgets::task::Task;
 
 pub struct TaskStats {
@@ -19,6 +20,7 @@ pub struct TaskStats {
     this_week_completed: i32,
     due_this_week: i32,
     this_week_completed_late: i32,
+    time_balance: TimeDelta,
 }
 
 impl TaskStats {
@@ -31,6 +33,7 @@ impl TaskStats {
             this_week_completed: 0,
             this_week_completed_late: 0,
             due_this_week: 0,
+            time_balance: TimeDelta::zero(),
         }
     }
 
@@ -114,7 +117,7 @@ impl TaskStats {
             ]),
             Line::from(vec![Span::styled(" ", Style::default())]),
             Line::from(vec![
-                Span::styled("Completion rate: ", Style::default().fg(Color::White)),
+                Span::styled("Completion Rate: ", Style::default().fg(Color::White)),
                 Span::styled(
                     format!("{}%", self.completion_rate()),
                     Style::default()
@@ -123,11 +126,15 @@ impl TaskStats {
                 ),
             ]),
             Line::from(vec![
-                Span::styled("Overdue Rate:  ", Style::default().fg(Color::White)),
+                Span::styled("Overdue Rate: ", Style::default().fg(Color::White)),
                 Span::styled(
                     format!("{}%", self.overdue_rate()), // of pending tasks
                     Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
                 ),
+            ]),
+            Line::from(vec![
+                Span::styled("Time Balance:", Style::default().fg(Color::White)),
+                TimeFormatter::display_time_balance(self.time_balance),
             ]),
         ];
 
@@ -193,6 +200,7 @@ impl TaskStats {
         self.overdue_completed_task_count = 0;
         self.this_week_completed = 0;
         self.due_this_week = 0;
+        self.time_balance = TimeDelta::zero();
 
         for task in tasklist {
             if task.done {
@@ -203,6 +211,8 @@ impl TaskStats {
                 }
 
                 if let (Some(completed_at), Some(reminder)) = (task.completed_at, task.reminder) {
+                    self.time_balance += reminder.signed_duration_since(completed_at);
+
                     if self.is_this_week(completed_at)
                         && self.is_this_week(reminder)
                         && completed_at > reminder

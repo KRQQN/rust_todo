@@ -6,7 +6,7 @@ use ratatui::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::utils::time_formatter::ReminderTimeFormatter;
+use crate::utils::time_formatter::TimeFormatter;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Task {
@@ -58,7 +58,7 @@ impl Task {
         ];
 
         if let Some(span) =
-            ReminderTimeFormatter::format_reminder(self.reminder, self.completed_at, self.done)
+            TimeFormatter::format_reminder(self.reminder, self.completed_at, self.done)
         {
             spans.push(Span::raw(" "));
             spans.push(span);

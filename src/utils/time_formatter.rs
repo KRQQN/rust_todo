@@ -1,13 +1,13 @@
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Local, TimeDelta};
 use ratatui::{
     style::{Color, Style},
     text::Span,
 };
 
 #[derive(Clone, Copy, Debug, Default)]
-pub struct ReminderTimeFormatter;
+pub struct TimeFormatter;
 
-impl ReminderTimeFormatter {
+impl TimeFormatter {
     pub fn format_reminder(
         reminder: Option<DateTime<Local>>,
         completed_at: Option<DateTime<Local>>,
@@ -66,6 +66,42 @@ impl ReminderTimeFormatter {
             }
         } else {
             format!(" {}{}m", sign, duration.num_minutes())
+        }
+    }
+
+    pub fn display_time_balance(duration: chrono::Duration) -> Span<'static> {
+        let days = duration.num_days();
+        let hours = duration.num_hours();
+        let minutes = duration.num_minutes();
+
+        if duration > TimeDelta::zero() {
+            if days >= 1 {
+                Span::styled(
+                    format!(" +{}d {}h", days, hours.abs() % 24),
+                    Style::default().fg(Color::Green),
+                )
+            } else if hours >= 1 {
+                Span::styled(
+                    format!(" +{}h {}m", hours, minutes.abs() % 60),
+                    Style::default().fg(Color::Green),
+                )
+            } else {
+                Span::styled(format!(" +{}m", minutes), Style::default().fg(Color::Green))
+            }
+        } else {
+            if days <= -1 {
+                Span::styled(
+                    format!(" {}d {}h", days, hours.abs() % 24),
+                    Style::default().fg(Color::Red),
+                )
+            } else if hours <= -1 {
+                Span::styled(
+                    format!(" {}h {}m", hours, minutes.abs() % 60),
+                    Style::default().fg(Color::Red),
+                )
+            } else {
+                Span::styled(format!(" {}m", minutes), Style::default().fg(Color::Red))
+            }
         }
     }
 
