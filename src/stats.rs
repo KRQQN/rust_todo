@@ -1,5 +1,4 @@
-use chrono::{DateTime, Datelike, Duration, Local, NaiveDate};
-use crossterm::terminal::window_size;
+use chrono::{DateTime, Datelike, Local};
 use ratatui::prelude::*;
 use ratatui::widgets::Paragraph;
 use ratatui::{
